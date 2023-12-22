@@ -1,4 +1,19 @@
-# API Spec
+# PhotoExam API for Bangkit Capstone Project
+
+## Prerequisite
+
+- NodeJs
+
+## Setup
+
+- Clone Repo
+
+```
+git clone 
+```
+
+- Install dependencies
+- Run the API
 
 ## Register User API
 
