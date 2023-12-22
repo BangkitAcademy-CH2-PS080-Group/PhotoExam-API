@@ -9,13 +9,34 @@
 - Clone Repo
 
 ```
-git clone 
+git clone https://github.com/BangkitAcademy-CH2-PS080-Group/PhotoExam-API.git
+cd PhotoExam-API
 ```
 
 - Install dependencies
+
+```
+npm install
+```
+  
 - Run the API
 
-## Register User API
+```
+npm run start
+```
+
+## Deploy to Cloud Run
+
+```
+docker build -t <YOUR-API-NAME>:<YOUR-API-VERSION> .
+docker tag <YOUR-API-NAME>:<YOUR-API-VERSION> gcr.io/<YOUR-PROJECT-ID>/<YOUR-API-NAME>:<YOUR-API-VERSION> 
+docker push gcr.io/<YOUR-PROJECT-ID>/<YOUR-API-NAME>:<YOUR-API-VERSION> 
+gcloud run deploy --source .
+```
+
+## API SPEC
+
+### Register User API
 
 Endpoint : POST /api/user/register
 
@@ -49,7 +70,7 @@ Response Body Error :
 }
 ```
 
-## Login User API
+### Login User API
 
 Endpoint : POST /api/user/login
 
@@ -88,7 +109,7 @@ Response Body Error :
 }
 ```
 
-## Add Files API
+### Add Files API
 
 Endpoint : POST /api/files
 
@@ -132,7 +153,7 @@ Response Body Error :
 }
 ```
 
-## Get All Files API
+### Get All Files API
 
 Endpoint : GET /api/files
 
@@ -183,7 +204,7 @@ Response Body Error :
 }
 ```
 
-## Get File by ID API
+### Get File by ID API
 
 Endpoint : GET /api/files/:fileId
 
@@ -227,7 +248,7 @@ Response Body Error :
 }
 ```
 
-## Delete File API
+### Delete File API
 
 Endpoint : DELETE /api/files/:fileId
 
