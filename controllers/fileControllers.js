@@ -5,7 +5,7 @@ const axios = require('axios');
 
 const addFiles = async (req, res) => {
   try {
-    const uploadedFile = req.files;
+    const uploadedFile = req.file;
     const { description, studentName, keyAnswer } = req.body;
     const documentId = req.user.uid;
 
@@ -13,52 +13,46 @@ const addFiles = async (req, res) => {
       return res.status(404).json({ message: 'File tidak ditemukan' });
     }
 
-    const uploadedData = [];
+    const fileId = uuidv4();
+    const fileName = `${fileId}_${uploadedFile.originalname}`;
+    const storageFile = bucket.file(fileName);
+    await storageFile.save(uploadedFile.buffer);
+    const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+    const date = new Date();
+    const dateTime = date.toISOString();
 
-    for (const file of uploadedFile) {
-      const fileId = uuidv4();
-      const fileName = `${fileId}_${file.originalname}`;
-      const storageFile = bucket.file(fileName);
-      await storageFile.save(file.buffer);
-      const publicUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
-      const date = new Date();
-      const dateTime = date.toISOString();
+    const apiBaseUrl = 'https://photoexam-model-c6drzmrwna-uc.a.run.app'; // Ganti dengan URL FastAPI Anda
+    const apiEndpoint = '/process_image';
+    const imageUrl = publicUrl; // Ganti dengan URL gambar dari Google Cloud Storage
+    const apiRequestUrl = `${apiBaseUrl}${apiEndpoint}`;
 
-      const apiBaseUrl = 'http://34.101.193.212:8000'; // Ganti dengan URL FastAPI Anda
-      const apiEndpoint = '/process_image/';
-      const imageUrl = publicUrl; // Ganti dengan URL gambar dari Google Cloud Storage
-      const apiRequestUrl = `${apiBaseUrl}${apiEndpoint}`;
+    try {
+      const response = await axios.post(apiRequestUrl, {
+        image_url: imageUrl,
+        key_answer: keyAnswer,
+      });
+      const similarityResult = response.data.SimilarityResult;
+      const ocrText = response.data.OCRText;
 
-      try {
-        const response = await axios.post(apiRequestUrl, {
-          image_url: imageUrl,
-          key_answer: keyAnswer,
-        });
-        const similarityResult = response.data.SimilarityResult;
-        const ocrText = response.data.OCRText;
+      const fileData = {
+        fileId: fileId,
+        fileName: uploadedFile.originalname,
+        storageUrl: publicUrl,
+        createdAt: dateTime,
+        description: description,
+        studentName: studentName,
+        keyAnswer: keyAnswer,
+        studentAnswer: ocrText,
+        score: similarityResult,
+      };
 
-        const fileData = {
-          fileId: fileId,
-          fileName: file.originalname,
-          storageUrl: publicUrl,
-          createdAt: dateTime,
-          description: description,
-          studentName: studentName,
-          keyAnswer: keyAnswer,
-          studentAnswer: ocrText,
-          score: similarityResult,
-        };
-
-        await usersRef
-          .doc(documentId)
-          .collection('files')
-          .doc(fileId)
-          .set(fileData);
-
-        uploadedData.push(fileData);
-      } catch (error) {
-        console.error('Error calling FastAPI:', error.message);
-      }
+      await usersRef
+        .doc(documentId)
+        .collection('files')
+        .doc(fileId)
+        .set(fileData);
+    } catch (error) {
+      console.error('Error calling FastAPI:', error.message);
     }
 
     res.json({
