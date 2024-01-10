@@ -36,6 +36,10 @@ gcloud run deploy --source .
 
 ## API SPEC
 
+## API URL
+
+https://photoexam-api-c6drzmrwna-uc.a.run.app
+
 ### Register User API
 
 Endpoint : POST /api/user/register
