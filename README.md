@@ -36,7 +36,7 @@ gcloud run deploy --source .
 
 ## API SPEC
 
-## API URL
+### API URL
 
 https://photoexam-api-c6drzmrwna-uc.a.run.app
 
